@@ -16,5 +16,8 @@ setup(
     description='The ftp gateway for cos service',
     packages=find_packages(),
     install_requires=requirements(),
-    include_package_data=True
+    include_package_data=True,
+    entry_points={
+        "console_scripts": ["cosftpd=ftp_v5.server:main"]
+        }
 )
