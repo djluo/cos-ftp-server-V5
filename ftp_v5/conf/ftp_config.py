@@ -1,7 +1,7 @@
 # -*- coding:utf-8 -*-
 
 import os
-import ConfigParser
+import configparser
 import platform
 import logging
 import ftp_v5.conf.common_config
@@ -35,7 +35,7 @@ class CosFtpConfig:
         return True
 
     def __init__(self):
-        cfg = ConfigParser.RawConfigParser()
+        cfg = configparser.RawConfigParser()
         cfg.read(CosFtpConfig.CONFIG_PATH)
 
         self.secretid = cfg.get("COS_ACCOUNT", "cos_secretid")
