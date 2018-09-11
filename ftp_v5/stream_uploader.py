@@ -4,7 +4,8 @@ import logging
 import math
 import threading
 import time
-from cStringIO import StringIO
+# from io import StringIO
+from io import BytesIO
 
 import ftp_v5.conf.common_config
 from ftp_v5.conf.ftp_config import CosFtpConfig
@@ -19,7 +20,8 @@ class FifoBuffer(object):
         logger.info("Init a buf. Thread: %s" % threading.currentThread().getName())
         self._cur_read_pos = 0
         self._cur_write_pos = 0
-        self._buf = StringIO()
+        # self._buf = StringIO()
+        self._buf = BytesIO()
 
     def read(self, read_len):
         self._buf.seek(self._cur_read_pos)                                          # 先定位文件指针到当前读指针的位置
