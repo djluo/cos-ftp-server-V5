@@ -33,7 +33,7 @@ class MockCosWriteFile(object):
 
     def write(self, data):
         self._uploader.write(data)
-        print "Recv data_len: %d, file: %s" % (len(data), self._key_name)
+        print("Recv data_len: %d, file: %s" % (len(data), self._key_name))
         return len(data)
 
     def close(self):

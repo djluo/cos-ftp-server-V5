@@ -198,6 +198,6 @@ class CosFtpConfig:
 
 # unittest
 if __name__ == "__main__":
-    print CosFtpConfig.CONFIG_PATH
+    print(CosFtpConfig.CONFIG_PATH)
 
-    print CosFtpConfig()
+    print(CosFtpConfig())
