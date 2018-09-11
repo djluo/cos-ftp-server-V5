@@ -48,7 +48,7 @@ class CosFtpConfig:
             try:
                 str_list = str(tmp_bucket).split("-")
                 self.appid = int(str_list[-1])  # 目前，这里的appid必须为一个number
-                del str_list[-1]
+                # del str_list[-1]
                 self.bucket = "-".join(str_list)
             except TypeError:
                 raise ValueError("Config error: bucket field must be {bucket name}-{appid}")

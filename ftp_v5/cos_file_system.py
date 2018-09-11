@@ -57,17 +57,15 @@ class CosFileSystem(AbstractedFS):
     def __init__(self, *args, **kwargs):
         super(CosFileSystem, self).__init__(*args, **kwargs)
         if CosFtpConfig().host is not None:
-            self._cos_client = CosS3Client(CosConfig(Appid=CosFtpConfig().appid,
-                                                     Region=None,
+            self._cos_client = CosS3Client(CosConfig(Region=None,
                                                      Access_id=CosFtpConfig().secretid,
                                                      Access_key=CosFtpConfig().secretkey,
-                                                     Host=CosFtpConfig().host), retry=3)
+                                                     ), retry=3)
         else:
-            self._cos_client = CosS3Client(CosConfig(Appid=CosFtpConfig().appid,
-                                                     Region=CosFtpConfig().region,
+            self._cos_client = CosS3Client(CosConfig(Region=CosFtpConfig().region,
                                                      Access_id=CosFtpConfig().secretid,
                                                      Access_key=CosFtpConfig().secretkey,
-                                                     Host=None), retry=3)
+                                                     ), retry=3)
         self._bucket_name = CosFtpConfig().bucket
 
     @property

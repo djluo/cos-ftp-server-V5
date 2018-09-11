@@ -1,2 +1,2 @@
-cos-python-sdk-v5>=1.0.0
-pyftpdlib
+cos-python-sdk-v5==1.5.7
+pyftpdlib==1.5.3
