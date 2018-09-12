@@ -1,5 +1,5 @@
 ocapi:
-    image:  d1bb1afde009
+    image:  11b5d178a219
     restart: always
     hostname: cosftpd-H1
     volumes:

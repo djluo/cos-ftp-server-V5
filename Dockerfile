@@ -11,4 +11,5 @@ COPY ./dist/ftp_v5-1.2.0v1-py3-none-any.whl /dist/
 RUN /venv/bin/pip install /dist/ftp_v5-1.2.0v1-py3-none-any.whl
 
 COPY ./python.py /
-CMD ["/python.py"]
+COPY ./common.py /
+CMD ["/venv/bin/python", "/python.py"]
