@@ -2,7 +2,7 @@
 
 import os
 import configparser
-import platform
+# import platform
 import logging
 import ftp_v5.conf.common_config
 
@@ -12,13 +12,13 @@ logger = logging.getLogger(__name__)
 
 
 class CosFtpConfig:
-    CONFIG_PATH = None
-    if platform.system() == "Windows":
-        CONFIG_PATH = os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__)))) + \
-                      "\\conf\\vsftpd.conf"
-    else:
-        CONFIG_PATH = os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__)))) + \
-                      "/conf/vsftpd.conf"
+    CONFIG_PATH = os.getenv("CONFIG_PATH")
+    # if platform.system() == "Windows":
+    #     CONFIG_PATH = os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__)))) + \
+    #                   "\\conf\\vsftpd.conf"
+    # else:
+    #     CONFIG_PATH = os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__)))) + \
+    #                   "/conf/vsftpd.conf"
 
     @classmethod
     def _check_ipv4(cls, ipv4):
