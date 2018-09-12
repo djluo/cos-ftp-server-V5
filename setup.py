@@ -7,7 +7,7 @@ def requirements():
         return requirements
 
 setup(
-    name='cosftpd',
+    name='ftp_v5',
     version='1.2.0v1',
     url='https://cloud.tencent.com/',
     license='MIT',
