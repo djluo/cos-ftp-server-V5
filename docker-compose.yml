@@ -1,0 +1,14 @@
+ocapi:
+    image:  d1bb1afde009
+    restart: always
+    hostname: cosftpd-H1
+    volumes:
+        - /Users/djluo/docker-data/cosftpd/:/Users/djluo/docker-data/cosftpd/
+    environment:
+        - UserId=1003
+        - CONFIG_PATH=/Users/djluo/docker-data/cosftpd/conf/cosftpd.conf
+    working_dir: /Users/djluo/docker-data/cosftpd/
+    ports:
+        - "0.0.0.0:2121:2121"
+        - "0.0.0.0:60000-60035:60000-60035"
+
