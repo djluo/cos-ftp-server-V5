@@ -1,7 +1,7 @@
 # -*- coding:utf-8 -*-
 
 import os
-import configparser
+# import configparser
 # import platform
 import logging
 import ftp_v5.conf.common_config
@@ -12,65 +12,23 @@ logger = logging.getLogger(__name__)
 
 
 class CosFtpConfig:
-    CONFIG_PATH = os.getenv("CONFIG_PATH")
-    # if platform.system() == "Windows":
-    #     CONFIG_PATH = os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__)))) + \
-    #                   "\\conf\\vsftpd.conf"
-    # else:
-    #     CONFIG_PATH = os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__)))) + \
-    #                   "/conf/vsftpd.conf"
-
-    @classmethod
-    def _check_ipv4(cls, ipv4):
-        if len(ipv4.split(".")) != 4:
-            return False
-        for value in ipv4.split("."):
-            try:
-                value = int(value)
-                if value < 0 or value > 255:
-                    return False
-            except ValueError:
-                return False
-
-        return True
 
     def __init__(self):
-        cfg = configparser.RawConfigParser()
-        cfg.read(CosFtpConfig.CONFIG_PATH)
 
-        self.secretid = cfg.get("COS_ACCOUNT", "cos_secretid")
-        self.secretkey = cfg.get("COS_ACCOUNT", "cos_secretkey")
+        self.secretid = os.getenv("COSFTPD_cos_secretid")
+        self.secretkey = os.getenv("COSFTPD_cos_secretkey")
+        self.bucket = os.getenv("COSFTPD_cos_bucket")
 
-        if cfg.has_section("COS_ACCOUNT") and cfg.has_option("COS_ACCOUNT", "cos_bucket"):
-            tmp_bucket = cfg.get("COS_ACCOUNT", "cos_bucket")
-            if len(str(tmp_bucket).split("-")) < 2:
-                raise ValueError("Config error: bucket field must be {bucket name}-{appid}")
-            try:
-                str_list = str(tmp_bucket).split("-")
-                self.appid = int(str_list[-1])  # 目前，这里的appid必须为一个number
-                # del str_list[-1]
-                self.bucket = "-".join(str_list)
-            except TypeError:
-                raise ValueError("Config error: bucket field must be {bucket name}-{appid}")
-            except ValueError:
-                raise ValueError("Config error: bucket field must be {bucket name}-{appid}")
+        if len(str(self.bucket).split("-")) < 2:
+            msg = "Config error: bucket field must be {bucket name}-{appid}"
+            raise ValueError(msg)
 
-        self.region = None
-        self.host = None
-        if cfg.has_section("COS_ACCOUNT") and \
-                cfg.has_option("COS_ACCOUNT", "cos_region") or cfg.has_option("COS_ACCOUNT", "endpoint"):
-            if cfg.has_option("COS_ACCOUNT", "endpoint"):
-                self.host = cfg.get("COS_ACCOUNT", "endpoint")
-            elif cfg.has_option("COS_ACCOUNT", "cos_region"):
-                self.region = cfg.get("COS_ACCOUNT", "cos_region")
-            else:
-                raise ValueError("Config error: Host and region specify at least one")
-        else:
-            raise ValueError("Config error: Host and region specify at least one")
+        self.host = os.getenv("COSFTPD_cos_endpoint", None)
+        self.region = os.getenv("COSFTPD_cos_region")
 
-        self.homedir = cfg.get("COS_ACCOUNT", "cos_user_home_dir")
+        self.homedir = os.getenv("COSFTPD_cos_user_home_dir")
 
-        login_users = cfg.get("FTP_ACCOUNT", "login_users")
+        login_users = os.getenv("COSFTPD_ftp_login_users")
         login_users = login_users.strip(" ").split(";")
         self.login_users = list()
         # self.login_users 的结构为 [ (user1,pass1,RW), (user2,pass2,RW) ]
@@ -78,16 +36,12 @@ class CosFtpConfig:
             login_user = element.split(":")
             self.login_users.append(tuple(login_user))
 
-        self.masquerade_address = None
-        if cfg.has_section("NETWORK") and cfg.has_option("NETWORK", "masquerade_address") and str(
-                cfg.get("NETWORK", "masquerade_address")) != "":
-            if CosFtpConfig._check_ipv4(cfg.get("NETWORK", "masquerade_address")):
-                self.masquerade_address = cfg.get("NETWORK", "masquerade_address")
-        else:
-            self.masquerade_address = None
+        self.masquerade_address = os.getenv("COSFTPD_ftp_masquerade_address",
+                                            None)
 
-        self.listen_port = int(cfg.get("NETWORK", "listen_port"))
-        passive_ports = cfg.get("NETWORK", 'passive_port').split(',')
+        self.listen_port = int(os.getenv("COSFTPD_ftp_listen_port"))
+        passive_ports = os.getenv('COSFTPD_ftp_passive_port').split(',')
+
         if len(passive_ports) > 1:
             self.passive_ports = range(int(passive_ports[0]), int(passive_ports[1]))
         elif len(passive_ports) == 1:
@@ -95,69 +49,20 @@ class CosFtpConfig:
         else:
             self.passive_ports = range(60000, 65535)
 
-        if cfg.has_section("FILE_OPTION") and cfg.has_option("FILE_OPTION", "single_file_max_size"):
-            self.single_file_max_size = int(cfg.get("FILE_OPTION", "single_file_max_size"))
-        else:
-            self.single_file_max_size = 200 * ftp_v5.conf.common_config.GIGABYTE  # 默认单文件最大为200G
+        sfms = 200 * ftp_v5.conf.common_config.GIGABYTE  # 默认单文件最大为200G
+        self.single_file_max_size = int(
+                os.getenv("COSFTPD_ftp_single_file_max_size", sfms))
 
         self.min_part_size = 2 * ftp_v5.conf.common_config.MEGABYTE
-        if cfg.has_section("OPTIONAL") and cfg.has_option("OPTIONAL", "min_part_size"):
-            try:
-                if int(cfg.get("OPTIONAL", "min_part_size")) > 0 and int(
-                        cfg.get("OPTIONAL", "min_part_size")) < 5 * ftp_v5.conf.common_config.GIGABYTE:
-                    self.min_part_size = int(cfg.get("OPTIONAL", "min_part_size"))
-            except ValueError:
-                pass
-            except TypeError:
-                pass
-
         self.upload_thread_num = cpu_count() * 4
-        if cfg.has_section("OPTIONAL") and cfg.has_option("OPTIONAL", "upload_thread_num"):
-            try:
-                if int(cfg.get("OPTIONAL", "upload_thread_num")) > 0 and int(
-                        cfg.get("OPTIONAL", "upload_thread_num")) <= cpu_count() * 8:
-                    self.upload_thread_num = int(cfg.get("OPTIONAL", "upload_thread_num"))
-            except ValueError:
-                pass
-            except TypeError:
-                pass
-
         self.max_connection_num = 512
-        if cfg.has_section("OPTIONAL") and cfg.has_option("OPTIONAL", "max_connection_num"):
-            try:
-                if int(cfg.get("OPTIONAL", "max_connection_num")) > 0:
-                    self.max_connection_num = int(cfg.get("OPTIONAL", "max_connection_num"))
-            except ValueError:
-                pass
-            except TypeError:
-                pass
-
         self.max_list_file = 1000
-        if cfg.has_section("OPTIONAL") and cfg.has_option("OPTIONAL", "max_list_file"):
-            try:
-                if int(cfg.get("OPTIONAL", "max_list_file")) > 0:
-                    self.max_list_file = int(cfg.get("OPTIONAL", "max_list_file"))
-            except ValueError:
-                pass
-            except TypeError:
-                pass
 
-        self.log_level = logging.INFO
-        if cfg.has_section("OPTIONAL") and cfg.has_option("OPTIONAL", "log_level"):
-            if str(cfg.get("OPTIONAL", "log_level")).lower() == str("WARNING").lower():
-                self.log_level = logging.WARN
-            if str(cfg.get("OPTIONAL", "log_level")).lower() == str("INFO").lower():
-                self.log_level = logging.INFO
-            if str(cfg.get("OPTIONAL", "log_level")).lower() == str("DEBUG").lower():
-                self.log_level = logging.DEBUG
-            if str(cfg.get("OPTIONAL", "log_level")).lower() == str("ERROR").lower():
-                self.log_level = logging.ERROR
-            if str(cfg.get("OPTIONAL", "log_level")).lower() == str("CRITICAL").lower():
-                self.log_level = logging.CRITICAL
+        ll = str(os.getenv("COSFTPD_log_level", "INFO").upper())
+        if ll in ("INFO", "WARN", "DEBUG", "ERROR", "CRITICAL"):
+            self.log_level = eval("logging.%s" % ll)
 
-        self.log_dir = "log"
-        if cfg.has_section("OPTIONAL") and cfg.has_option("OPTIONAL", "log_dir"):
-            self.log_dir = str(cfg.get("OPTIONAL", "log_dir")).lower()
+        self.log_dir = str(os.getenv("COSFTPD_log_dir"))
         if not os.path.exists(self.log_dir):
             os.mkdir(self.log_dir)
 
@@ -198,6 +103,4 @@ class CosFtpConfig:
 
 # unittest
 if __name__ == "__main__":
-    print(CosFtpConfig.CONFIG_PATH)
-
     print(CosFtpConfig())

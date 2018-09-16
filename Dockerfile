@@ -7,9 +7,9 @@ MAINTAINER djluo <dj.luo@baoyugame.com>
 RUN python3 -m venv /venv \
     && /venv/bin/pip install -i https://mirrors.aliyun.com/pypi/simple/ --upgrade pip==10.0.1
 
-COPY ./dist/ftp_v5-1.2.0v1-py3-none-any.whl /dist/
-RUN /venv/bin/pip install /dist/ftp_v5-1.2.0v1-py3-none-any.whl
+COPY ./dist/ftp_v5-1.2.0v2-py3-none-any.whl /dist/
+RUN /venv/bin/pip install /dist/ftp_v5-1.2.0v2-py3-none-any.whl
 
-COPY ./python.py /
-COPY ./common.py /
-CMD ["/venv/bin/python", "/python.py"]
+COPY ./cosftpd.py /
+COPY ./common.py  /
+CMD ["/venv/bin/python", "/cosftpd.py"]
