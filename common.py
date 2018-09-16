@@ -7,11 +7,11 @@ import pwd
 import os.path
 import random
 import socket
-import ConfigParser
+import configparser
 
 class AppConfig(object):
   def __init__(self, src):
-    self.cf = ConfigParser.SafeConfigParser()
+    self.cf = configparser.SafeConfigParser()
     self.cf.read(src)
 
   def update(self, config):
@@ -26,7 +26,7 @@ class AppConfig(object):
 class SupervisorConfig(AppConfig):
   def __init__(self, src, working_dir):
 
-    self.cf = ConfigParser.SafeConfigParser()
+    self.cf = configparser.SafeConfigParser()
     self.cf.read(src)
 
     socket  = os.path.join(working_dir, "logs/supervisor.sock")
@@ -47,7 +47,7 @@ class AutoZabbixConfig(object):
 
   def fixpermissions(self, cnf):
     gid = GetZabbixGID("/host-passwd")
-    os.chmod(cnf, 0640)
+    os.chmod(cnf, 0o640)
     os.chown(cnf, -1, gid)
 
 class Crond(object):
@@ -86,7 +86,7 @@ class RsyncConfig(object):
 def _WritePassword(pwfile, password):
   with open(pwfile, 'wb') as pw:
     pw.write("%s\n" % password)
-  os.chmod(pwfile, 0600)
+  os.chmod(pwfile, 0o600)
 
 
 # 添加用于运行应用的受限账户
