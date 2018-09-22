@@ -54,7 +54,7 @@ class CosFtpConfig:
                 os.getenv("COSFTPD_ftp_single_file_max_size", sfms))
 
         self.min_part_size = 2 * ftp_v5.conf.common_config.MEGABYTE
-        self.upload_thread_num = cpu_count() * 4
+        self.upload_thread_num = int(os.getenv("COSFTPD_upload_thread_num", 4))
         self.max_connection_num = 512
         self.max_list_file = 1000
 

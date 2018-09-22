@@ -8,7 +8,7 @@ def requirements():
 
 setup(
     name='ftp_v5',
-    version='1.2.0v2',
+    version='1.2.0v3',
     url='https://cloud.tencent.com/',
     license='MIT',
     author='COS team',
