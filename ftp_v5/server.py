@@ -3,14 +3,15 @@
 
 import logging
 
-from pyftpdlib.servers import FTPServer, MultiprocessFTPServer
+from pyftpdlib.servers import FTPServer
 
 from ftp_v5.cos_authorizer import CosAuthorizer
 from ftp_v5.cos_ftp_handler import CosFtpHandler
 from ftp_v5.cos_file_system import CosFileSystem
 from ftp_v5.conf.ftp_config import CosFtpConfig
 
-logging.basicConfig(filename=CosFtpConfig().log_dir + '/pyftpd.log', level=CosFtpConfig().log_level)
+logging.basicConfig(filename=CosFtpConfig().log_dir + '/pyftpd.log',
+                    level=CosFtpConfig().log_level)
 
 
 def run(port=2121, passive_ports=range(60000, 65535), masquerade_address=None):
@@ -21,7 +22,10 @@ def run(port=2121, passive_ports=range(60000, 65535), masquerade_address=None):
             perm = perm + authorizer.read_perms
         if "W" in permission:
             perm = perm + authorizer.write_perms
-        authorizer.add_user(login_user, login_password, CosFtpConfig().homedir, perm=perm)
+        authorizer.add_user(login_user,
+                            login_password,
+                            CosFtpConfig().homedir,
+                            perm=perm)
 
     handler = CosFtpHandler
     handler.authorizer = authorizer
@@ -37,12 +41,13 @@ def run(port=2121, passive_ports=range(60000, 65535), masquerade_address=None):
     server = FTPServer(("0.0.0.0", port), handler)
     server.max_cons = CosFtpConfig().max_connection_num
 
-    print("starting  ftp server...")
+    return server
+    # print("starting  ftp server...")
 
-    try:
-        server.serve_forever()
-    finally:
-        server.close_all()
+    # try:
+    #     server.serve_forever()
+    # finally:
+    #     server.close_all()
 
 
 def main():
@@ -51,4 +56,6 @@ def main():
     external_ip = CosFtpConfig().masquerade_address
     passive_ports = CosFtpConfig().passive_ports
 
-    run(port=port, masquerade_address=external_ip, passive_ports=passive_ports)
+    return run(port=port,
+               masquerade_address=external_ip,
+               passive_ports=passive_ports)

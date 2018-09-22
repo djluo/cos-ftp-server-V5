@@ -1,12 +1,23 @@
 ocapi:
-    image:  11b5d178a219
+    build:  .
     restart: always
     hostname: cosftpd-H1
     volumes:
         - /Users/djluo/docker-data/cosftpd/:/Users/djluo/docker-data/cosftpd/
     environment:
         - UserId=1003
-        - CONFIG_PATH=/Users/djluo/docker-data/cosftpd/conf/cosftpd.conf
+        - COSFTPD_cos_secretid=
+        - COSFTPD_cos_secretkey=
+        - COSFTPD_cos_bucket=
+        - COSFTPD_cos_region=ap-guangzhou
+        - COSFTPD_cos_user_home_dir=/home/docker
+        - COSFTPD_ftp_login_users=user1:pass1:RW
+        - COSFTPD_ftp_masquerade_address=192.168.31.185
+        - COSFTPD_ftp_listen_port=2121
+        - COSFTPD_ftp_passive_port=60000,60035
+        - COSFTPD_log_level=DEBUG
+        - COSFTPD_log_dir=/Users/djluo/docker-data/cosftpd/logs
+        - COSFTPD_upload_thread_num=3
     working_dir: /Users/djluo/docker-data/cosftpd/
     ports:
         - "0.0.0.0:2121:2121"

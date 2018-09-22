@@ -3,18 +3,23 @@
 
 import os
 import re
+import signal
 import os.path
+import functools
 from common import GetEnv, AddRunUser
 from ftp_v5 import server
 
 
 def FixPermission():
-    if os.path.isdir("data"):
-        os.system("mkdir -pv data")
     if os.path.isdir("logs"):
         os.system("mkdir -pv logs")
 
-    os.system("chown docker.docker -R data logs")
+    os.system("chown docker.docker -R logs")
+
+
+def CloseFTPD(proc, signum, frame):
+    print("shutdown ftp server...")
+    proc.close_all()
 
 
 if __name__ == '__main__':
@@ -38,4 +43,11 @@ if __name__ == '__main__':
     os.setuid(uid)
 
     # 开启应用
-    server.main()
+    ftp = server.main()
+
+    # 捕获退出信号
+    handler = functools.partial(CloseFTPD, ftp)
+    signal.signal(signal.SIGTERM, handler)
+
+    print("starting ftp server...")
+    ftp.serve_forever()
